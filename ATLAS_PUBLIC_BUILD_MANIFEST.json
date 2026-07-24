@@ -1,44 +1,74 @@
 {
-  "version": "0.6.1-public-slider-hotfix",
+  "version": "0.6.2-public-dependent-question-fix",
+  "websitePackageVersion": "1.1.3",
   "generated": "2026-07-24",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "404.html": "4ea4fc91a855d39e8c0fced26344b7170148bf8b7eeb18c86904969e15a487e0",
+    "404.html": "ed47652624dafe35e8c285ff4aca1cb933e702313aa6f4f310720b873a569511",
     "CNAME": "fe1f376b4720f9eef18a4084cb1fdc825281bfb9b698ef9dea4da80c7a4cb038",
+    "INTEGRATION_NOTES.md": "076688b31f3e21ce53a325da2ac5dbb419cf265ae633b8527180fe5d0bb6be47",
     "PRELAUNCH_CHECKLIST.md": "bafa6d967b596dcfb16f4e130dc2363c2d6b4b64abe734a8d89044b4e7c68c0d",
-    "README_DEPLOY.md": "24f19d5e291e58c49b7dc0138ee4dc17b4f5cdade39e9fa736c649b15e46a732",
+    "README.md": "b050ae694a589497623bffc82bbfa95623c33d2e3c8a227079637605ecc7d3ec",
     "_headers": "f5f1edadc08c894a2906bd639562e9de3f30653a8f6ca804a13853682a0f1af6",
-    "about.html": "14ed5e4c72bc2e35c67b33c15308d59a74b3c6f13c8859d030139e05d9f081c4",
+    "about.html": "05233084b12962b250606538fcc05a71f61d91c19439a039e0376e506c87afe6",
     "assessment/data/atlas-ontology.json": "cf2ebeef59157a04e5d1f7661250b56a2b61edd29b02132ab32954daf0e18f74",
     "assessment/data/branch-rules.json": "8101fb0e8f81c1cad109ada44f35e78f212d75af0999c4fc0c4944b2b8081427",
     "assessment/data/deployment-config.json": "77c64a270f1326508cfb046c6d31082e17909fd00d3e652acdc308d9038e2462",
     "assessment/data/entity-schema.json": "83f7b94e5c8409b5dd2cd789813a81b2a8985d63edf6e54b17d2e77e458ce4e1",
     "assessment/data/scoring-packages.json": "5ee850648d79aa510028f7ab7558043201d92bb5844740b28000f8409bdaebab",
-    "assessment/index.html": "b929c4cfc9b9aaece8983d2ff0e1364847b06c9e16600c30169ddf47734f3df8",
-    "assessment/src/app.js": "287660b57f3432c8e29c2a9ca7be1701a3b4b5c84fc918d9ad75f9c1fdfec262",
+    "assessment/index.html": "00beef75915eceb145ce4bfac49265d34ce5d121122d65c6fb4f6a8bd4c9ed6b",
+    "assessment/src/app.js": "cbc4fb0665be69282552456002c0caa67f2d16f34c23b4fb9732d3a0925e9d75",
     "assessment/src/combined-question-bank.js": "e5dda3526264c3a9bda37c62b9eb81521e2c720b56b6c2d7925304e4a2169704",
     "assessment/src/config.js": "126091053c50ec2a78512865fec17dac6e7cea402b7f9a4582714112231daa1b",
-    "assessment/src/styles.css": "4128e4ee6fec63235164eeec9b19795e1c592d44564a35554ab689484e616b98",
+    "assessment/src/styles.css": "422c8ece420bcb8b6517b5a2736d43d3ceb46f1b723a58f51f14c9b7dec4c483",
+    "assets/css/styles.css": "9f3f752d10f053e73f84f7327cf15951ef1db76540acb3e614f5bdab1b0db7dd",
+    "assets/img/logo.svg": "75d0956164919799f281ae7491a7a4ab88580235a6fb8208985494792bdc6007",
+    "assets/js/app.js": "16a697a9c7fd6c8774cf510c24af5b2275e262e368f0650584bf85329300edb0",
+    "assets/js/assessment.js": "182f342101c144b47f3082f552d3d4c61d9c6a3cb722cac85527abec3fdf943d",
+    "assets/js/profile-demo.js": "a6f35e1bac0674950e46dc0c0759b2aa888407dbcec43fc280c7995c538bac59",
     "assets/public-overrides.css": "3aef99ba211d41b1af07e18f75bed48bd88452a08c89cd6af99b12d16bbc729e",
-    "assets/site.css": "65066f87ef53c1c0cf2b742e9f27a21ead5c3cf2df323132e2fee981da2ddf60",
-    "index.html": "8f9f6f71b4b7e18e2882e88c9ddc1e323f686b822483271a09e2625bfadba985",
-    "privacy.html": "86d7b06045b3e258cc498b14eded45875df7f56f52ef7afcaded61ee6b3ee78b",
+    "favicon.svg": "cb03984bf8a42bf303723e83f7631316e3fe43f33fea339c12dfb8a6906e025a",
+    "index.html": "23751eac00c81df9255667ab5a57bc7a3cbe21def1193d3eb93a5d6554b37ffa",
+    "privacy.html": "d24db2d3f60655b502e0b7aa1f6e2ce1be69510654ce7f43bc7e0cc2a17a79b0",
+    "research/index.html": "264fb2422bd859986cb3b6ebe2002119d6c15af875279a4f65fe198139c49921",
     "robots.txt": "75063bf152cf705a3f3af5fab1c2219759acf003cd71da440bf16dcbc791dbc1",
-    "sitemap.xml": "160690f1b4fd67db1608187f2e5257e16457d29d5f0c63ace39798425a5e144f",
-    "terms.html": "0fbc99fbd15b17db2acbb6c2a1b3d23fb5e369877f468aa4e4e8611bb64e3cf9"
+    "scope/index.html": "3ceb5afbc6bb7407e21049b8f8bdd8a85c441b55d9b063d8788d0d45309d5425",
+    "serve.bat": "aad5bc34c0780fb49d9885ea2495cabe9f98a23ee775148903a73a15bb83957c",
+    "serve.sh": "9038efb7956809a6c6370a21563a2399162a2ede37b0be38d055935eac9cf3c5",
+    "site.webmanifest": "015574839271f73c86983ab2ece421e3e12f52d6e8afd274137c485635130aa4",
+    "sitemap.xml": "f3cc6fce8aa03b9d0edf019b0d51813c96b5483b9d2a0801b35c76af9826cb8d",
+    "terms.html": "7e3827556a15b771d7380ae469f1001cfa50c74f88d1c3f6db8f127d4d39eda9",
+    "tests/dependent_question_smoke.py": "998e00663b0e523526cda3382c47f3269b1ca43fca55799ac2af8e22b51878c7",
+    "triad/index.html": "192cec7a51137c9ed3bbb0290044aca7b71daddf77e77209fae75d911090cbdc"
   },
-  "hotfix": {
-    "issue": "Range sliders stored values but remained visually marked as unanswered; duplicate input binding also obscured behavior.",
+  "fix": {
+    "issue": "Questions referencing earlier multi-select answers rendered source instructions as literal rows or omitted the selected options.",
+    "affectedQuestionFamilies": [
+      "MOSAIC C01 -> C03/C04",
+      "MOSAIC D01 -> D03/D04/D05",
+      "SCOPE B01 -> B03/B04/B05"
+    ],
     "changes": [
-      "single input binding for range/number controls",
-      "range change fallback for mobile browsers",
-      "immediate answered-state UI update",
-      "numeric companion synchronization retained"
+      "parse source question IDs from semantic population instructions",
+      "create one dependent option or matrix row per substantive upstream selection",
+      "preserve valid row answers and remove obsolete or literal-placeholder keys",
+      "update dependent controls immediately when the upstream multi-select changes",
+      "render one SCOPE B04 fit slider per selected relationship label",
+      "cache-bust the corrected public app.js runtime"
     ]
   },
-  "hotfixFileSha256": {
-    "assessment/src/app.js": "93ddbb2ffefc9b3eeaab239f33f5aef0e79f6e5c3c63f84b576dd941520d2d31",
-    "assessment/index.html": "b929c4cfc9b9aaece8983d2ff0e1364847b06c9e16600c30169ddf47734f3df8",
-    "assessment/src/styles.css": "4128e4ee6fec63235164eeec9b19795e1c592d44564a35554ab689484e616b98"
+  "verification": {
+    "javascriptSyntax": "PASS",
+    "questionCount": 490,
+    "dependentQuestionChromiumSmoke": "PASS",
+    "D01SampleSelections": 7,
+    "D04GeneratedRows": 7,
+    "D05GeneratedRows": 7,
+    "upstreamRemovalReconciled": true,
+    "C04GeneratedRows": 3,
+    "SCOPEB04GeneratedRows": 3,
+    "SCOPEB04SliderCount": 3,
+    "SCOPEB05GeneratedRows": 3,
+    "brokenLocalReferences": 0
   }
 }

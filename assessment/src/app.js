@@ -14,7 +14,7 @@
   const NARRATIVE_CONTRACT = SUITE_CONFIG.narrativeContract || {};
   const POLICY_RULES = SUITE_CONFIG.policyRules || [];
   const MIGRATION_LEDGER = SUITE_CONFIG.migrationLedger || {quarantineIds:[]};
-  const APP_VERSION = '0.6.1-public-slider-hotfix';
+  const APP_VERSION = '0.6.2-public-dependent-question-fix';
   const STORAGE_KEY = 'atlas-suite-combined-alpha-v05';
   const BUILD_METADATA = Object.freeze({
     appVersion: APP_VERSION,
@@ -186,6 +186,8 @@
     return out;
   }
   function rowsFrom(q) {
+    const dynamicRows = dynamicRowsForQuestion(q);
+    if (dynamicRows !== null) return dynamicRows;
     const seg = parseSegments(q['Options / Anchors']);
     return splitPipe(seg.Rows || seg['Role pairs'] || '');
   }
@@ -218,6 +220,59 @@
     if (q.Module === 'TRIAD' && !String(raw).startsWith('TRIAD.')) return `TRIAD.${raw}`;
     if (q.Module === 'SCOPE' && !String(raw).startsWith('SCOPE.')) return `SCOPE.${raw}`;
     return raw;
+  }
+  function referencedSourceId(q) {
+    const text = `${q['Options / Anchors'] || ''} ${q['Branch / Display Rule'] || ''}`;
+    const patterns = [
+      /Populate from(?:\s+substantive)?\s+([A-Z]\d{2})/i,
+      /selected in\s+([A-Z]\d{2})/i,
+      /substantive\s+([A-Z]\d{2})\s+(?:labels|terms|selections)/i,
+      /from\s+([A-Z]\d{2})\s+(?:selected|items|relationships|relationship roster)/i
+    ];
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) return sourceIdFor(q, match[1].toUpperCase());
+    }
+    return '';
+  }
+  function usesDynamicRows(q) {
+    const text = `${q['Options / Anchors'] || ''} ${q['Branch / Display Rule'] || ''}`;
+    return /Rows\s*=.*(?:selected in|substantive\s+[A-Z]\d{2})/i.test(text)
+      || /Display only.*selected in\s+[A-Z]\d{2}/i.test(text)
+      || /Display substantive\s+[A-Z]\d{2}\s+labels/i.test(text);
+  }
+  function isNonSubstantiveSelection(value) {
+    return /^(?:questioning(?: or exploring| or unsure)?|unsure|i do not use(?: a gender)? label|i do not use a label or am unlabeled|no single label is central|prefer not to answer)$/i.test(String(value || '').trim());
+  }
+  function substantiveSourceSelections(values, allowFallback = false) {
+    if (!Array.isArray(values)) return [];
+    const substantive = values.filter(value => !isNonSubstantiveSelection(value));
+    if (substantive.length || !allowFallback) return substantive;
+    return values.filter(value => !/^prefer not to answer$/i.test(String(value || '').trim()));
+  }
+  function dynamicRowsForQuestion(q) {
+    if (!usesDynamicRows(q)) return null;
+    const sourceId = referencedSourceId(q);
+    const source = sourceId ? answer(sourceId) : null;
+    if (Array.isArray(source)) return substantiveSourceSelections(source, false);
+    if (source && typeof source === 'object') {
+      const text = `${q['Options / Anchors'] || ''} ${q['Branch / Display Rule'] || ''}`;
+      const threshold = /above 25/i.test(text) ? 25 : /above 0/i.test(text) ? 0 : -Infinity;
+      return Object.entries(source).filter(([,value]) => Number(value) > threshold).map(([key]) => key);
+    }
+    return [];
+  }
+  function reconcileDynamicObjectAnswer(id, rows, keyTransform = value => value) {
+    const current = answer(id);
+    if (!current || typeof current !== 'object' || Array.isArray(current)) return {};
+    const allowed = new Set(rows.map(keyTransform));
+    const clean = Object.fromEntries(Object.entries(current).filter(([key]) => allowed.has(key)));
+    if (Object.keys(clean).length !== Object.keys(current).length) {
+      if (Object.keys(clean).length) state.answers[id] = clean;
+      else delete state.answers[id];
+      saveState();
+    }
+    return clean;
   }
   function triadAnswer(id) { return answer(`TRIAD.${id}`); }
   function triadNumeric(id, fallback=null) {
@@ -533,6 +588,8 @@
   }
   function scopeStripPrefix(item){return item.replace(/^(Rows|Columns|Options|Response|Periods|Categories|Part A|Part B)\s*=\s*/i,'').trim();}
   function scopeSpecRows(q){
+    const dynamicRows=dynamicRowsForQuestion(q);
+    if(dynamicRows!==null)return dynamicRows;
     const text=q['Options / Anchors']||'';
     let segment=scopeExtractSegment(text,['Rows','Periods','Categories','Role pairs']);
     if(!segment&&/For each record:/i.test(text))segment=text.split(/For each record:/i)[1]||'';
@@ -554,7 +611,7 @@
   }
   function scopeSubstantiveLabels(){
     const values=Array.isArray(scopeAnswer('B01'))?scopeAnswer('B01'):[];
-    return values.filter(x=>!/prefer not|unsure|unlabeled|do not use/i.test(x));
+    return substantiveSourceSelections(values,true);
   }
   function scopeDynamicOptions(q){
     const source=q['Source Question ID']||q['Question ID'].replace(/^SCOPE\\./,'');
@@ -614,8 +671,13 @@
   }
 
   function scopeMatrixSliderControl(q){
-    const id=q['Question ID'],rows=scopeSpecRows(q),columns=scopeSpecColumns(q).length?scopeSpecColumns(q):['Rating'];
-    const value=answer(id)&&typeof answer(id)==='object'?answer(id):{};
+    const id=q['Question ID'],rows=scopeSpecRows(q),parsedColumns=scopeSpecColumns(q);
+    const singularScale=/\bColumn\s*=/i.test(q['Options / Anchors']||'')&&!/\bColumns\s*=/i.test(q['Options / Anchors']||'');
+    const columns=singularScale?[((parsedColumns[0]||'Rating').split(':')[0]||'Rating').trim()]:parsedColumns.length?parsedColumns:['Rating'];
+    const value=usesDynamicRows(q)
+      ? reconcileDynamicObjectAnswer(id,rows,scopeKeyOf)
+      : (answer(id)&&typeof answer(id)==='object'?answer(id):{});
+    if(usesDynamicRows(q)&&!rows.length)return '<div class="empty-state">Select at least one substantive item in the referenced question to populate this matrix.</div>';
     return scopeMatrixTable(rows,columns,(row,col)=>{
       const rk=scopeKeyOf(row),ck=scopeKeyOf(col),cell=columns.length===1?(value[rk]??''):(value[rk]?.[ck]??'');
       return `<div class="scope-slider-cell ${cell===''?'slider-unset':''}"><input type="range" data-scope-matrix-slider="${attr(id)}::${attr(rk)}::${attr(ck)}::${columns.length}" min="0" max="100" value="${cell===''?50:cell}"><input type="number" data-scope-matrix-number="${attr(id)}::${attr(rk)}::${attr(ck)}::${columns.length}" min="0" max="100" value="${cell}" placeholder="—"></div>`;
@@ -647,7 +709,11 @@
     return rels.map(r=>`<div class="repeat-matrix"><strong>${esc(r.name||r.label||r.id)}</strong>${scopeMatrixTable(rows.length?rows:['Overall'],['Response'],row=>{const rk=scopeKeyOf(row),cell=value[r.id]?.[rk]??'';return `<select data-scope-repeat-matrix-select="${attr(id)}::${attr(r.id)}::${attr(rk)}"><option value="">Not answered</option>${options.map(opt=>`<option ${cell===opt?'selected':''}>${esc(opt)}</option>`).join('')}</select>`;})}</div>`).join('');
   }
   function scopeMatrixMultiControl(q){
-    const id=q['Question ID'],rows=scopeSpecRows(q),options=scopeSpecColumns(q).length?scopeSpecColumns(q):scopeSpecOptions(q),value=answer(id)&&typeof answer(id)==='object'?answer(id):{};
+    const id=q['Question ID'],rows=scopeSpecRows(q),options=scopeSpecColumns(q).length?scopeSpecColumns(q):scopeSpecOptions(q);
+    const value=usesDynamicRows(q)
+      ? reconcileDynamicObjectAnswer(id,rows,scopeKeyOf)
+      : (answer(id)&&typeof answer(id)==='object'?answer(id):{});
+    if(usesDynamicRows(q)&&!rows.length)return '<div class="empty-state">Select at least one substantive item in the referenced question to populate this matrix.</div>';
     return scopeMatrixTable(rows,['Select all that apply'],row=>{const rk=scopeKeyOf(row),values=Array.isArray(value[rk])?value[rk]:[];return `<div class="matrix-multi">${options.map(opt=>`<label><input type="checkbox" data-scope-matrix-multi="${attr(id)}::${attr(rk)}" value="${attr(opt)}" ${values.includes(opt)?'checked':''}>${esc(opt)}</label>`).join('')}</div>`;});
   }
   function scopeTimelineControl(q){
@@ -828,18 +894,21 @@ function renderSlider(q) {
   const id = q['Question ID'];
   const answered = Number.isFinite(Number(answer(id)));
   const val = answered ? Number(answer(id)) : 50;
-  return `<div class="slider-shell ${answered ? '' : 'slider-unset'}">
-    <div class="slider-wrap"><input aria-label="${attr(q.Prompt)}" type="range" min="0" max="100" step="1" data-qid="${attr(id)}" value="${val}"><input class="text-input number-box" type="number" min="0" max="100" data-qid="${attr(id)}" value="${answered ? val : ''}" placeholder="—"></div>
+  return `<div class="slider-shell ${answered ? '' : 'slider-unset'}" data-slider-shell="${attr(id)}">
+    <div class="slider-wrap"><input aria-label="${attr(q.Prompt)}" type="range" min="0" max="100" step="1" data-qid="${attr(id)}" data-slider-primary="true" value="${val}"><input class="text-input number-box" type="number" min="0" max="100" step="1" data-qid="${attr(id)}" value="${answered ? val : ''}" placeholder="—" aria-label="Exact value for ${attr(q.Prompt)}"></div>
     <div class="anchor-row">${sliderAnchors(q).map(a=>`<span>${esc(a)}</span>`).join('')}</div>
-    ${answered ? '' : '<div class="unset-note">Not answered — move the slider or enter a number.</div>'}
+    ${answered ? `<div class="slider-answer-status" role="status" aria-live="polite">Recorded answer: <strong>${val}</strong></div>` : `<div class="unset-note" role="status" aria-live="polite">Not answered. Move the slider, enter a number, or <button type="button" class="inline-action" data-use-slider-current="${attr(id)}">record 50</button>.</div>`}
   </div>`;
 }
 
 
 function renderMatrixSlider(q, bipolar = false, overrideRows) {
   const id = q['Question ID'];
-  const val = answer(id) && typeof answer(id) === 'object' ? answer(id) : {};
   const rows = overrideRows || rowsFrom(q);
+  const val = usesDynamicRows(q)
+    ? reconcileDynamicObjectAnswer(id, rows)
+    : (answer(id) && typeof answer(id) === 'object' ? answer(id) : {});
+  if (usesDynamicRows(q) && !rows.length) return '<div class="empty-state">Select at least one substantive item in the referenced question to populate this matrix.</div>';
   return `<div class="option-grid">${rows.map(row => {
     const answered = Number.isFinite(Number(val[row]));
     const n = answered ? Number(val[row]) : 50;
@@ -849,16 +918,24 @@ function renderMatrixSlider(q, bipolar = false, overrideRows) {
 
 
 function renderSingleDynamic(q) {
-  const sourceIdRaw = (q['Options / Anchors'].match(/Populate from\s+([A-Z]\d+)/i) || [])[1];
-  const sourceId = sourceIdFor(q, sourceIdRaw);
+  const sourceId = referencedSourceId(q);
   let opts = [];
   if (sourceId) {
     const src = answer(sourceId);
-    if (Array.isArray(src)) opts = src;
-    else if (src && typeof src === 'object') opts = Object.entries(src).filter(([,v]) => Number(v) > 0 || isAnsweredValue(v)).map(([k])=>k);
+    if (Array.isArray(src)) {
+      const requiresSubstantive = /substantive|selected identity terms/i.test(`${q['Options / Anchors'] || ''} ${q['Branch / Display Rule'] || ''}`);
+      opts = requiresSubstantive ? substantiveSourceSelections(src, true) : src;
+    } else if (src && typeof src === 'object') {
+      opts = Object.entries(src).filter(([,v]) => Number(v) > 0 || isAnsweredValue(v)).map(([k])=>k);
+    }
   }
   const staticOpts = splitPipe(q['Options / Anchors']).filter(x => !/^Populate from/i.test(x));
   opts = [...new Set([...opts, ...staticOpts])];
+  const current = answer(q['Question ID']);
+  if (isAnsweredValue(current) && !opts.includes(current)) {
+    delete state.answers[q['Question ID']];
+    saveState();
+  }
   return opts.length ? renderSingle(q, opts) : '<div class="empty-state">Complete the preceding source question to populate these choices.</div>';
 }
 
@@ -876,11 +953,13 @@ function renderSingleDynamic(q) {
 
 
 function dynamicSourceRows(q) {
-  const text = q['Options / Anchors'] || '';
-  const sourceIdRaw = (text.match(/(?:Populate from|Rows =)\s*([A-Z]\d+)/i) || [])[1];
-  const sourceId = sourceIdFor(q, sourceIdRaw);
+  const text = `${q['Options / Anchors'] || ''} ${q['Branch / Display Rule'] || ''}`;
+  const sourceId = referencedSourceId(q);
   const source = sourceId ? answer(sourceId) : null;
-  if (Array.isArray(source)) return substantiveSelections(source, ['None','Unsure','Prefer not to answer','No kink-linked theme']);
+  if (Array.isArray(source)) {
+    if (/substantive|selected identity terms/i.test(text)) return substantiveSourceSelections(source, true);
+    return substantiveSelections(source, ['None','Unsure','Prefer not to answer','No kink-linked theme']);
+  }
   if (source && typeof source === 'object') {
     const threshold = /above 25/i.test(text) ? 25 : /above 0/i.test(text) ? 0 : -Infinity;
     return Object.entries(source).filter(([,v]) => Number(v) > threshold).map(([k]) => k);
@@ -946,7 +1025,7 @@ function dynamicSourceRows(q) {
 
 function matrixSegments(q) {
   const seg = parseSegments(q['Options / Anchors']);
-  const rows = splitPipe(seg.Rows || '');
+  const rows = rowsFrom(q);
   let options = splitPipe(seg.Options || seg.Columns || seg['Response scale'] || '');
   if (!options.length) options = optionsFrom(q);
   return { rows, options, seg };
@@ -954,8 +1033,11 @@ function matrixSegments(q) {
 
 function renderMatrixMulti(q) {
   const id = q['Question ID'];
-  const val = answer(id) && typeof answer(id)==='object' ? answer(id) : {};
   const {rows, options} = matrixSegments(q);
+  const val = usesDynamicRows(q)
+    ? reconcileDynamicObjectAnswer(id, rows)
+    : (answer(id) && typeof answer(id)==='object' ? answer(id) : {});
+  if (usesDynamicRows(q) && !rows.length) return '<div class="empty-state">Select at least one substantive item in the referenced question to populate this matrix.</div>';
   return `<div class="matrix-wrap"><table class="matrix"><thead><tr><th>Item</th>${options.map(o=>`<th>${esc(o)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr><td>${esc(row)}</td>${options.map(opt=>{const selected=Array.isArray(val[row])&&val[row].includes(opt);return `<td class="radio-cell"><input type="checkbox" data-qid="${attr(id)}" data-matrix-multi="1" data-row="${attr(row)}" value="${attr(opt)}" ${selected?'checked':''}></td>`}).join('')}</tr>`).join('')}</tbody></table></div>`;
 }
 
@@ -1313,9 +1395,16 @@ function renderStructuredFallback(q) {
       // Sliders and numeric companions update continuously. Other controls commit on change.
       const event = (el.type === 'range' || el.type === 'number') ? 'input' : 'change';
       el.addEventListener(event, handleInput);
-      // Some mobile/browser combinations reliably emit change only when a range thumb is released.
-      if (el.type === 'range') el.addEventListener('change', handleInput);
+      if (el.type === 'range') {
+        // Commit even when the intended answer equals the visual 50 placeholder and no input event fires.
+        ['change','pointerup','mouseup','touchend','keyup'].forEach(name => el.addEventListener(name, () => commitSliderValue(el)));
+      }
     });
+    document.querySelectorAll('[data-use-slider-current]').forEach(el=>el.addEventListener('click',()=>{
+      const id=el.dataset.useSliderCurrent;
+      const slider=document.querySelector(`input[type="range"][data-qid="${CSS.escape(id)}"]`);
+      if(slider)commitSliderValue(slider);
+    }));
     document.querySelectorAll('[data-repeat-add]').forEach(el=>el.addEventListener('click',()=>{const id=el.dataset.repeatAdd;const v=Array.isArray(answer(id))?[...answer(id)]:[''];v.push('');setAnswer(id,v);render();}));
     document.querySelectorAll('[data-repeat-remove]').forEach(el=>el.addEventListener('click',()=>{const [id,idx]=el.dataset.repeatRemove.split('::');const v=Array.isArray(answer(id))?[...answer(id)]:[];v.splice(Number(idx),1);setAnswer(id,v.length?v:['']);render();}));
     document.querySelectorAll('[data-rank-up],[data-rank-down],[data-order-up],[data-order-down]').forEach(el=>el.addEventListener('click',()=>moveRank(el)));
@@ -1420,6 +1509,13 @@ function renderStructuredFallback(q) {
   }
 
 
+function commitSliderValue(el) {
+  if (!el || el.type !== 'range' || !el.dataset.qid) return;
+  const value = Math.max(0, Math.min(100, Number(el.value)));
+  setAnswer(el.dataset.qid, value);
+  syncSiblingInputs(el);
+}
+
 function handleInput(e) {
   const el = e.currentTarget;
   const id = el.dataset.qid;
@@ -1510,10 +1606,15 @@ function handleInput(e) {
     container.classList.remove('slider-unset');
     const note = container.querySelector('.unset-note');
     if (note) note.remove();
-    const strong = container.querySelector('label > strong');
-    if (strong && /Not answered/.test(strong.textContent || '')) {
-      strong.textContent = strong.textContent.replace(/Not answered/g, String(el.value));
+    let status = container.querySelector('.slider-answer-status');
+    if (!status) {
+      status = document.createElement('div');
+      status.className = 'slider-answer-status';
+      status.setAttribute('role','status');
+      status.setAttribute('aria-live','polite');
+      container.appendChild(status);
     }
+    status.innerHTML = `Recorded answer: <strong>${esc(String(el.value))}</strong>`;
     container.dataset.answered = 'true';
   }
 

@@ -28,3 +28,15 @@ Upload the contents of this directory to the root of the GitHub Pages publishing
 - Numeric companion fields remain synchronized.
 - Range controls use one continuous input handler plus a change-event fallback for mobile/browser release behavior.
 - JavaScript syntax validation passed.
+
+## v0.6.2 dependent-question population fix
+
+- Corrected questions whose rows or choices are populated from an earlier multi-select answer.
+- D03 now lists the substantive identity terms selected in D01.
+- D04 creates one independent fit slider for each substantive D01 selection.
+- D05 creates one meaning-matrix row for each substantive D01 selection.
+- Applied the same dependency handling to C01 → C03/C04 and SCOPE B01 → B03/B04/B05.
+- Removed stale literal placeholder keys created by earlier builds while preserving still-valid per-item answers.
+- When an upstream selection is removed, dependent rows and obsolete stored values are removed immediately.
+- Added a headless Chromium regression test covering seven D01 selections, dynamic row removal, MOSAIC C dependencies, and SCOPE B dependencies.
+- Added a version query to `assessment/src/app.js` so GitHub Pages visitors receive the corrected runtime instead of a cached copy.

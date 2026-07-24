@@ -94,3 +94,7 @@ The integrated assessment includes:
 - GitHub Pages `CNAME` and `.nojekyll` files
 
 The public assessment remains a research-informed preview and is not a diagnosis, clinical instrument, identity adjudicator, compatibility verdict, or consent/readiness certification.
+
+## v1.1.3 dependent-question correction
+
+Questions that depend on earlier multi-select answers now populate from the respondent's actual selections rather than displaying schema instructions as literal choices or row labels. The included regression test is `tests/dependent_question_smoke.py`.
