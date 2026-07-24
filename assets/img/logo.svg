@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">MOSAIC framework mark</title>
+  <defs>
+    <linearGradient id="g" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9D7CFF"/>
+      <stop offset=".5" stop-color="#5AA7FF"/>
+      <stop offset="1" stop-color="#43D7C2"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="29" fill="#101D30" stroke="rgba(255,255,255,.25)"/>
+  <path d="M20 18.5 31.8 12l12 6.5v13L32 38 20 31.5v-13Z" fill="none" stroke="url(#g)" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m20 32 12 7 12-7v12.5L32 52l-12-7.5V32Z" fill="url(#g)" opacity=".82"/>
+  <circle cx="32" cy="25" r="4.2" fill="#F7F8FB"/>
+</svg>
