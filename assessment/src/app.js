@@ -14,7 +14,7 @@
   const NARRATIVE_CONTRACT = SUITE_CONFIG.narrativeContract || {};
   const POLICY_RULES = SUITE_CONFIG.policyRules || [];
   const MIGRATION_LEDGER = SUITE_CONFIG.migrationLedger || {quarantineIds:[]};
-  const APP_VERSION = '0.6-public-web-preview';
+  const APP_VERSION = '0.6.1-public-slider-hotfix';
   const STORAGE_KEY = 'atlas-suite-combined-alpha-v05';
   const BUILD_METADATA = Object.freeze({
     appVersion: APP_VERSION,
@@ -1310,9 +1310,11 @@ function renderStructuredFallback(q) {
     document.querySelectorAll('[data-section-index]').forEach(el => el.addEventListener('click', () => { state.sectionIndex = Number(el.dataset.sectionIndex); state.view='assessment'; saveState(); render(); window.scrollTo({top:0}); }));
     document.querySelectorAll('[data-skip]').forEach(el => el.addEventListener('click', () => { const id=el.dataset.skip; if(state.skipped[id]) delete state.skipped[id]; else { state.skipped[id]=true; delete state.answers[id]; } saveState(); render(); }));
     document.querySelectorAll('input[data-qid], textarea[data-qid], select[data-qid]').forEach(el => {
-      const event = el.type === 'range' ? 'input' : (el.tagName === 'TEXTAREA' || el.type === 'text' || el.type === 'number' ? 'change' : 'change');
+      // Sliders and numeric companions update continuously. Other controls commit on change.
+      const event = (el.type === 'range' || el.type === 'number') ? 'input' : 'change';
       el.addEventListener(event, handleInput);
-      if (el.type === 'range' || el.type === 'number') el.addEventListener('input', handleInput);
+      // Some mobile/browser combinations reliably emit change only when a range thumb is released.
+      if (el.type === 'range') el.addEventListener('change', handleInput);
     });
     document.querySelectorAll('[data-repeat-add]').forEach(el=>el.addEventListener('click',()=>{const id=el.dataset.repeatAdd;const v=Array.isArray(answer(id))?[...answer(id)]:[''];v.push('');setAnswer(id,v);render();}));
     document.querySelectorAll('[data-repeat-remove]').forEach(el=>el.addEventListener('click',()=>{const [id,idx]=el.dataset.repeatRemove.split('::');const v=Array.isArray(answer(id))?[...answer(id)]:[];v.splice(Number(idx),1);setAnswer(id,v.length?v:['']);render();}));
@@ -1496,7 +1498,23 @@ function handleInput(e) {
   function syncSiblingInputs(el) {
     if (!['range','number'].includes(el.type)) return;
     const selector = `[data-qid="${CSS.escape(el.dataset.qid)}"]${el.dataset.row ? `[data-row="${CSS.escape(el.dataset.row)}"]` : ''}${el.dataset.subfield ? `[data-subfield="${CSS.escape(el.dataset.subfield)}"]` : ''}`;
-    document.querySelectorAll(selector).forEach(other => { if(other!==el && ['range','number'].includes(other.type)) other.value=el.value; });
+    document.querySelectorAll(selector).forEach(other => {
+      if(other!==el && ['range','number'].includes(other.type)) other.value=el.value;
+    });
+    markSliderAnswered(el);
+  }
+
+  function markSliderAnswered(el) {
+    const container = el.closest('.slider-shell, .matrix-slider-row, .scope-slider-cell');
+    if (!container) return;
+    container.classList.remove('slider-unset');
+    const note = container.querySelector('.unset-note');
+    if (note) note.remove();
+    const strong = container.querySelector('label > strong');
+    if (strong && /Not answered/.test(strong.textContent || '')) {
+      strong.textContent = strong.textContent.replace(/Not answered/g, String(el.value));
+    }
+    container.dataset.answered = 'true';
   }
 
   function moveRank(el) {

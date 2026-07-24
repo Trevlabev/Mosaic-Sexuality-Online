@@ -20,3 +20,11 @@ The previous lightweight assessment preview was replaced with the complete ATLAS
 ## Publishing
 
 Upload the contents of this directory to the root of the GitHub Pages publishing branch. Do not upload the enclosing directory as an additional nested level.
+
+
+## v0.6.1 slider hotfix
+
+- Slider movement now immediately removes the “Not answered” state.
+- Numeric companion fields remain synchronized.
+- Range controls use one continuous input handler plus a change-event fallback for mobile/browser release behavior.
+- JavaScript syntax validation passed.

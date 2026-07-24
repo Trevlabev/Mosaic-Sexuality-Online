@@ -1,5 +1,5 @@
 {
-  "version": "0.6-public-web-preview",
+  "version": "0.6.1-public-slider-hotfix",
   "generated": "2026-07-24",
   "files": {
     ".nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -26,5 +26,19 @@
     "robots.txt": "75063bf152cf705a3f3af5fab1c2219759acf003cd71da440bf16dcbc791dbc1",
     "sitemap.xml": "160690f1b4fd67db1608187f2e5257e16457d29d5f0c63ace39798425a5e144f",
     "terms.html": "0fbc99fbd15b17db2acbb6c2a1b3d23fb5e369877f468aa4e4e8611bb64e3cf9"
+  },
+  "hotfix": {
+    "issue": "Range sliders stored values but remained visually marked as unanswered; duplicate input binding also obscured behavior.",
+    "changes": [
+      "single input binding for range/number controls",
+      "range change fallback for mobile browsers",
+      "immediate answered-state UI update",
+      "numeric companion synchronization retained"
+    ]
+  },
+  "hotfixFileSha256": {
+    "assessment/src/app.js": "93ddbb2ffefc9b3eeaab239f33f5aef0e79f6e5c3c63f84b576dd941520d2d31",
+    "assessment/index.html": "b929c4cfc9b9aaece8983d2ff0e1364847b06c9e16600c30169ddf47734f3df8",
+    "assessment/src/styles.css": "4128e4ee6fec63235164eeec9b19795e1c592d44564a35554ab689484e616b98"
   }
 }
