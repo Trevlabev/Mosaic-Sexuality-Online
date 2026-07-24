@@ -1,0 +1,40 @@
+{
+  "version": "1.1",
+  "domains": [
+    "Embodiment",
+    "Identity and Sexual Self-Understanding",
+    "Attraction and Attachment",
+    "Desire, Arousal, and Motivation",
+    "Fantasy, Scripts, and Meaning",
+    "Conduct and Practices",
+    "Relationship Ecology and Governance",
+    "Experience, Outcomes, and Integration"
+  ],
+  "levels": [
+    "Embodied Organism",
+    "Person",
+    "Dyad",
+    "Event or Small Group",
+    "Relationship Network or Household",
+    "Sociocultural Environment"
+  ],
+  "states": [
+    "Identity",
+    "Preference",
+    "Intention",
+    "Agreement",
+    "Enactment",
+    "Experience",
+    "Capacity",
+    "Constraint"
+  ],
+  "time": [
+    "Current",
+    "Recent",
+    "Lifetime",
+    "Development",
+    "Change",
+    "Anticipation",
+    "Feedback"
+  ]
+}

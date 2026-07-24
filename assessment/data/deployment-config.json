@@ -1,0 +1,45 @@
+{
+  "version": "0.5.0",
+  "mode": "local-self-hosted-internal-alpha",
+  "operator": {
+    "name": "The person running this local ATLAS Suite file",
+    "contact": "Self-hosted local use; no external service operator is configured."
+  },
+  "purpose": "Adult self-reflection and internal validation of an unvalidated research-informed assessment prototype.",
+  "prohibitedUses": [
+    "diagnosis",
+    "identity proof",
+    "consent or readiness certification",
+    "compatibility determination",
+    "employment, insurance, legal, or disciplinary decisions about another person"
+  ],
+  "privacyNotice": "Built into the application Privacy & Deployment view and docs/PRIVACY_AND_AI.md.",
+  "storage": {
+    "supported": [
+      "session-only",
+      "no-save"
+    ],
+    "persistentBrowserStorage": false,
+    "encryptedLocalStorage": false,
+    "retention": "Session storage ends when the browser tab/session is closed; exports remain under the user’s control."
+  },
+  "externalAI": {
+    "configuredByDefault": false,
+    "processor": "User-supplied endpoint only",
+    "requiresGranularAuthorization": true
+  },
+  "accessibility": {
+    "status": "engineering smoke-tested; formal accessibility audit pending"
+  },
+  "research": {
+    "formalStudyConsentIncluded": false,
+    "note": "Study-specific approved consent is required for formal human-subjects research."
+  },
+  "publicReleaseReady": false,
+  "releaseBlockers": [
+    "formal accessibility audit",
+    "88-case human dry run approval",
+    "expanded signed golden profiles",
+    "production security and legal/privacy review"
+  ]
+}

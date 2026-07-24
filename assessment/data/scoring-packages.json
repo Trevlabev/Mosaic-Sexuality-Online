@@ -1,0 +1,105 @@
+{
+  "version": "0.5.0",
+  "principles": {
+    "globalScoreAllowed": false,
+    "identityAssignmentAllowed": false,
+    "readinessCertificationAllowed": false
+  },
+  "metrics": [
+    {
+      "metricId": "triad.fantasyIntentionDistance",
+      "version": "0.5.0",
+      "requires": [
+        "TRIAD.I03",
+        "TRIAD.I09"
+      ],
+      "formula": "abs(I03-I09)",
+      "minimumCoverage": 1.0,
+      "prohibitedInterpretations": [
+        "readiness",
+        "consent",
+        "compatibility",
+        "identity"
+      ],
+      "evidenceQuestionIds": [
+        "TRIAD.I03",
+        "TRIAD.I09"
+      ],
+      "policyRules": [
+        "Rule 1",
+        "Rule 2",
+        "Rule 11"
+      ]
+    },
+    {
+      "metricId": "scope.preferredAgreementAlignment",
+      "version": "0.5.0",
+      "requires": [
+        "SCOPE.C08",
+        "SCOPE.D05"
+      ],
+      "formula": "100-meanAbsoluteDifference(sharedDomains)",
+      "minimumCoverage": 0.3,
+      "prohibitedInterpretations": [
+        "relationship quality",
+        "consent",
+        "compatibility"
+      ],
+      "evidenceQuestionIds": [
+        "SCOPE.C08",
+        "SCOPE.D05"
+      ],
+      "policyRules": [
+        "Rule 1",
+        "Rule 2",
+        "Rule 11"
+      ]
+    },
+    {
+      "metricId": "scope.agreementEnactmentAlignment",
+      "version": "0.5.0",
+      "requires": [
+        "SCOPE.D05",
+        "SCOPE.E07"
+      ],
+      "formula": "100-meanAbsoluteDifference(sharedDomains)",
+      "minimumCoverage": 0.3,
+      "prohibitedInterpretations": [
+        "ethics",
+        "consent validity",
+        "relationship quality"
+      ],
+      "evidenceQuestionIds": [
+        "SCOPE.D05",
+        "SCOPE.E07"
+      ],
+      "policyRules": [
+        "Rule 1",
+        "Rule 2",
+        "Rule 11"
+      ]
+    },
+    {
+      "metricId": "atlas.coverage",
+      "version": "0.5.0",
+      "requires": [
+        "questionBank"
+      ],
+      "formula": "answeredVisible/visible",
+      "minimumCoverage": 0,
+      "prohibitedInterpretations": [
+        "validity",
+        "completeness of identity"
+      ],
+      "evidenceQuestionIds": [
+        "questionBank"
+      ],
+      "policyRules": [
+        "Rule 1",
+        "Rule 2",
+        "Rule 11"
+      ]
+    }
+  ],
+  "policyRuleSource": "source/MOSAIC_Assessment_v1.3.json#scoringRules"
+}

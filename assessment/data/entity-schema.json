@@ -1,0 +1,31 @@
+{
+  "version": "0.4.0",
+  "types": {
+    "person": {
+      "required": [
+        "id",
+        "displayName"
+      ],
+      "privacyDefault": "code_only"
+    },
+    "relationship": {
+      "required": [
+        "id",
+        "memberIds"
+      ],
+      "privacyDefault": "private"
+    },
+    "scenario": {
+      "required": [
+        "id",
+        "participantIds"
+      ],
+      "privacyDefault": "private"
+    }
+  },
+  "rules": [
+    "No third-party identifying data is required.",
+    "TRIAD scenarios may reference SCOPE people and relationships.",
+    "A TRIAD event never modifies SCOPE without explicit confirmation."
+  ]
+}

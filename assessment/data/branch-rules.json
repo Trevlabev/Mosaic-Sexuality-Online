@@ -1,0 +1,138 @@
+{
+  "version": "0.4.0",
+  "rules": {
+    "B02": {
+      "all": [
+        {
+          "questionId": "B01",
+          "operator": "equals",
+          "value": "Another sex designation"
+        }
+      ]
+    },
+    "B04": {
+      "all": [
+        {
+          "questionId": "B03",
+          "operator": "notEquals",
+          "value": "No"
+        },
+        {
+          "questionId": "B03",
+          "operator": "answered"
+        }
+      ]
+    },
+    "B05": {
+      "all": [
+        {
+          "questionId": "B03",
+          "operator": "notEquals",
+          "value": "No"
+        },
+        {
+          "questionId": "B03",
+          "operator": "answered"
+        }
+      ]
+    },
+    "B07": {
+      "any": [
+        {
+          "questionId": "B06",
+          "operator": "containsText",
+          "value": "Yes"
+        },
+        {
+          "questionId": "B06",
+          "operator": "containsText",
+          "value": "Unsure"
+        }
+      ]
+    },
+    "C02": {
+      "any": [
+        {
+          "questionId": "C01",
+          "operator": "includes",
+          "value": "Another culturally specific gender"
+        },
+        {
+          "questionId": "C01",
+          "operator": "includes",
+          "value": "Another gender"
+        }
+      ]
+    },
+    "C13": {
+      "any": [
+        {
+          "questionId": "C01",
+          "operator": "includes",
+          "value": "Genderfluid"
+        },
+        {
+          "questionId": "C11",
+          "operator": "gte",
+          "value": 5
+        },
+        {
+          "questionId": "C12",
+          "operator": "gte",
+          "value": 5
+        }
+      ]
+    },
+    "D02": {
+      "any": [
+        {
+          "questionId": "D01",
+          "operator": "includes",
+          "value": "Another culturally specific identity"
+        },
+        {
+          "questionId": "D01",
+          "operator": "includes",
+          "value": "Another identity"
+        }
+      ]
+    },
+    "D10": {
+      "all": [
+        {
+          "questionId": "D09",
+          "operator": "lt",
+          "value": 100
+        }
+      ]
+    },
+    "D13": {
+      "any": [
+        {
+          "questionId": "D01",
+          "operator": "includes",
+          "value": "Mostly straight or mostly heterosexual"
+        },
+        {
+          "questionId": "D01",
+          "operator": "includes",
+          "value": "Heteroflexible"
+        }
+      ]
+    },
+    "D14": {
+      "any": [
+        {
+          "questionId": "D01",
+          "operator": "includes",
+          "value": "Mostly gay or mostly lesbian"
+        },
+        {
+          "questionId": "D01",
+          "operator": "includes",
+          "value": "Homoflexible"
+        }
+      ]
+    }
+  }
+}
