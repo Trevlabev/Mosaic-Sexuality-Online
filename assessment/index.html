@@ -15,5 +15,6 @@
 <div id="app" aria-live="polite"></div>
 <input id="bankImport" type="file" accept="application/json,.json" hidden>
 <input id="responseImport" type="file" accept="application/json,.json" hidden>
-<script src="src/combined-question-bank.js"></script><script src="src/config.js"></script><script src="src/app.js?v=0.6.2"></script>
+<script src="src/combined-question-bank.js" defer></script><script src="src/config.js" defer></script><script src="src/app.js?v=0.6.2" defer></script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('../sw.js').catch(()=>{}));}</script>
 </body></html>

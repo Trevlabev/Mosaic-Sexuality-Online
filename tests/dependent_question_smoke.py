@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -102,11 +103,10 @@ def text_list(locator) -> list[str]:
 
 def main() -> None:
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(
-            headless=True,
-            executable_path="/usr/bin/chromium",
-            args=["--no-sandbox"],
-        )
+        launch_kwargs = {"headless": True, "args": ["--no-sandbox"]}
+        if os.path.exists("/usr/bin/chromium"):
+            launch_kwargs["executable_path"] = "/usr/bin/chromium"
+        browser = playwright.chromium.launch(**launch_kwargs)
 
         # MOSAIC sexual identity dependencies: D01 -> D03/D04/D05.
         page = browser.new_page()

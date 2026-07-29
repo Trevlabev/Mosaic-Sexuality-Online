@@ -1,6 +1,6 @@
 # Prelaunch Checklist
 
-- [ ] Replace contact and privacy mailbox placeholders.
+- [x] Replace contact and privacy mailbox placeholders.
 - [ ] Identify the legal/operator entity and jurisdiction.
 - [ ] Confirm hosting provider log collection and retention, then update `privacy.html`.
 - [ ] Complete accessibility review, including keyboard-only, screen-reader, contrast, zoom, and mobile testing.

@@ -1,0 +1,99 @@
+name: CI & Integrity Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate JavaScript Syntax
+        run: |
+          node --check assets/js/app.js assets/js/assessment.js assets/js/profile-demo.js assessment/src/config.js assessment/src/combined-question-bank.js assessment/src/app.js
+
+      - name: Validate JSON Files & Manifest Integrity
+        run: |
+          python -c "
+          import json, glob, hashlib, sys
+
+          # 1. Validate JSON syntax
+          for f in glob.glob('**/*.json', recursive=True):
+              try:
+                  json.load(open(f, encoding='utf-8'))
+              except Exception as e:
+                  print(f'Invalid JSON in {f}: {e}')
+                  sys.exit(1)
+
+          # 2. Validate manifest SHA256 integrity
+          manifest = json.load(open('ATLAS_PUBLIC_BUILD_MANIFEST.json', encoding='utf-8'))
+          mismatches = []
+          for rel_path, expected_hash in manifest['files'].items():
+              try:
+                  data = open(rel_path, 'rb').read()
+                  actual_hash = hashlib.sha256(data).hexdigest()
+                  if actual_hash != expected_hash:
+                      mismatches.append((rel_path, expected_hash, actual_hash))
+              except FileNotFoundError:
+                  mismatches.append((rel_path, expected_hash, 'MISSING'))
+
+          if mismatches:
+              print('Manifest mismatch or missing files:')
+              for item in mismatches:
+                  print(item)
+              sys.exit(1)
+
+          print('JSON and Manifest validation PASSED.')
+          "
+
+      - name: Validate HTML Relative Links
+        run: |
+          python -c "
+          import os, glob, re, sys
+          from pathlib import Path
+
+          root = Path('.').resolve()
+          broken = []
+          for hf in root.glob('**/*.html'):
+              content = hf.read_text(encoding='utf-8')
+              matches = re.findall(r'(?:href|src)=[\x22\x27]([^\x22\x27]+)[\x22\x27]', content)
+              for m in matches:
+                  if m.startswith(('http://', 'https://', 'mailto:', '#', 'data:')):
+                      continue
+                  path_part = m.split('#')[0].split('?')[0]
+                  if not path_part:
+                      continue
+                  target = (hf.parent / path_part).resolve()
+                  if not target.exists():
+                      broken.append((hf.relative_to(root), m, target))
+
+          if broken:
+              print('Broken HTML links found:')
+              for item in broken:
+                  print(item)
+              sys.exit(1)
+
+          print('HTML link validation PASSED.')
+          "
+
+      - name: Install Playwright & Run Dependent Question Smoke Test
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+          python tests/dependent_question_smoke.py
