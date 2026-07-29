@@ -291,3 +291,13 @@ select option { color: #111; }
 .inline-action:hover, .inline-action:focus-visible { text-decoration-thickness: 2px; }
 .slider-answer-status { margin-top: 10px; color: var(--text-muted); font-size: .94rem; }
 .slider-answer-status strong { color: var(--text); }
+
+/* Print & PDF Export Stylesheet */
+@media print {
+  body { background: #ffffff !important; color: #111111 !important; font-size: 11pt; }
+  .top-bar, .nav-actions, .site-return, button, input[type="file"], .modal-backdrop, .result-tabs, .help, .notice { display: none !important; }
+  .layout, .main-panel, section, .card, .profile-row, .scope-panel { background: transparent !important; border: 1px solid #cccccc !important; box-shadow: none !important; color: #111111 !important; page-break-inside: avoid; }
+  .text-gradient, strong, h1, h2, h3, h4 { color: #000000 !important; -webkit-text-fill-color: initial !important; background: none !important; }
+  a { color: #111111 !important; text-decoration: underline !important; }
+  .heatmap table, .openness-table { page-break-inside: avoid; }
+}

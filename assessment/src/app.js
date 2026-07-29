@@ -1846,5 +1846,43 @@ function handleInput(e) {
     version:APP_VERSION
   };
 
+  // Keyboard Shortcuts Assist
+  document.addEventListener('keydown', (e) => {
+    if (!e.altKey) return;
+    const key = e.key.toLowerCase();
+    if (key === 'arrowright') {
+      const nextBtn = document.querySelector('.nav-actions button.primary:not([data-action="close-modal"])');
+      if (nextBtn) { nextBtn.click(); e.preventDefault(); }
+    } else if (key === 'arrowleft') {
+      const prevBtn = document.querySelector('.nav-actions button.secondary');
+      if (prevBtn) { prevBtn.click(); e.preventDefault(); }
+    } else if (key === 's') {
+      state.modal = 'settings'; saveState(); render(); e.preventDefault();
+    } else if (key === 'p') {
+      window.print(); e.preventDefault();
+    }
+  });
+
+  // PII Privacy Notice Listener on open-text fields
+  document.addEventListener('input', (e) => {
+    if (e.target && (e.target.tagName === 'TEXTAREA' || (e.target.tagName === 'INPUT' && e.target.type === 'text'))) {
+      const val = e.target.value || '';
+      const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(val);
+      const hasPhone = /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/.test(val);
+      let piiNotice = e.target.parentElement.querySelector('.pii-privacy-warning');
+      if (hasEmail || hasPhone) {
+        if (!piiNotice) {
+          piiNotice = document.createElement('small');
+          piiNotice.className = 'pii-privacy-warning';
+          piiNotice.style.cssText = 'display:block;margin-top:4px;color:#f39c12;font-size:0.75rem;font-weight:600;';
+          piiNotice.textContent = '🔒 Privacy reminder: Avoid entering explicit personal identifiers (emails/phone numbers) in open-text fields.';
+          e.target.parentElement.appendChild(piiNotice);
+        }
+      } else if (piiNotice) {
+        piiNotice.remove();
+      }
+    }
+  });
+
   render();
 })();
